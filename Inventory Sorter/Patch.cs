@@ -1,19 +1,100 @@
 ﻿using HarmonyLib;
-using PulsarPluginLoader.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace Inventory_Sorter
 {
-    class PawnInventorySorter : IComparer<PLPawnItem>
+    class PawnItemSorter
     {
-        public int Compare(PLPawnItem x, PLPawnItem y)
+        public static int Compare(PLPawnItem x, PLPawnItem y)
         {
-            if(x == null || y == null)
+            if (x == null)
             {
-                return 0;
+                if (y == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
             }
-            return x.getHash().CompareTo(y.getHash());
+            else
+            {
+                if (y == null)
+                {
+                    return 1;
+                }
+                else
+                {
+                    if (Global.sortmode == 0)
+                    {
+                        if ((int)x.PawnItemType == (int)y.PawnItemType)
+                        {
+                            if (x.SubType == y.SubType)
+                            {
+                                if (x.Level == y.Level) { return 0; }
+                                else if (x.Level > y.Level) { return 1; }
+                                else { return -1; }
+                            }
+                            else if (x.SubType > y.SubType) { return 1; }
+                            else { return -1; }
+                        }
+                        else if ((int)x.PawnItemType > (int)y.PawnItemType) { return 1; }
+                        else { return -1; }
+                    }
+                    else
+                    {
+                        return x.GetItemName().CompareTo(y.GetItemName());
+                    }
+                }
+            }
+        }
+    }
+    class PawnItemDisplaySorter
+    {
+        public static int Compare(PLTabMenu.PawnItemDisplay x, PLTabMenu.PawnItemDisplay y)
+        {
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                if (y == null)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return PawnItemSorter.Compare(x.Item, y.Item);
+                    /*if (Global.sortmode == 0)
+                    {
+                        if ((int)x.Item.PawnItemType == (int)y.Item.PawnItemType)
+                        {
+                            if (x.Item.SubType == y.Item.SubType)
+                            {
+                                if (x.Item.Level == y.Item.Level) { return 0; }
+                                else if (x.Item.Level > y.Item.Level) { return 1; }
+                                else { return -1; }
+                            }
+                            else if (x.Item.SubType > y.Item.SubType) { return 1; }
+                            else { return -1; }
+                        }
+                        else if ((int)x.Item.PawnItemType > (int)y.Item.PawnItemType) { return 1; }
+                        else { return -1; }
+                    }
+                    else
+                    {
+                        return x.Item.GetItemName().CompareTo(y.Item.GetItemName());
+                    }*/
+                }
+            }
         }
     }
     [HarmonyPatch(typeof(PLPawnInventoryBase), "UpdateItem")]
@@ -21,20 +102,9 @@ namespace Inventory_Sorter
     {
         private static void Postfix(PLPawnInventoryBase __instance)
         {
-            string text = string.Empty;
-            foreach (PLPawnItem item in __instance.AllItems)
-            {
-                text += $"\n {item.GetTypeString()}";
-            }
-            Logger.Info($"Sorting inv UI. The folowing is the current item list {text}");
-            PawnInventorySorter PIS = new PawnInventorySorter();
-            __instance.AllItems.Sort(PIS);
-            string text2 = string.Empty;
-            foreach (PLPawnItem item in __instance.AllItems)
-            {
-                text2 += $"\n {item.GetTypeString()}";
-            }
-            Logger.Info($"Sorted inv UI. The folowing is the new item list {text}");
+            __instance.AllItems.Sort(PawnItemSorter.Compare);
+            PLTabMenu.Instance.DisplayedPIDS_MyInventory.Sort(PawnItemDisplaySorter.Compare);
+            PLTabMenu.Instance.DisplayedPIDS_Container.Sort(PawnItemDisplaySorter.Compare);
         }
     }
     [HarmonyPatch(typeof(PLPawnInventoryBase), "ServerItemSwap")]
@@ -42,10 +112,10 @@ namespace Inventory_Sorter
     {
         private static void Postfix(PLPawnInventoryBase __instance, ref int targetInvID)
         {
-            Logger.Info($"Trying to sort inv SIS Target id: {targetInvID} Local id: {__instance.InventoryID}");
-            PawnInventorySorter PIS = new PawnInventorySorter();
-            __instance.AllItems.Sort(PIS);
-            PLNetworkManager.Instance.GetInvAtID(targetInvID).AllItems.Sort(PIS);
+            __instance.AllItems.Sort(PawnItemSorter.Compare);
+            PLNetworkManager.Instance.GetInvAtID(targetInvID).AllItems.Sort(PawnItemSorter.Compare);
+            PLTabMenu.Instance.DisplayedPIDS_MyInventory.Sort(PawnItemDisplaySorter.Compare);
+            PLTabMenu.Instance.DisplayedPIDS_Container.Sort(PawnItemDisplaySorter.Compare);
         }
     }
 }

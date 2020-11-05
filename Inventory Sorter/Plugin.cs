@@ -4,7 +4,7 @@ namespace Inventory_Sorter
 {
     public class Plugin : PulsarPlugin
     {
-        public override string Version => "0.0.5";
+        public override string Version => "0.1.0";
 
         public override string Author => "Dragon";
 
