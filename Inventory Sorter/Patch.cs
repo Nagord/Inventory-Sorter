@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
 
 namespace Inventory_Sorter
 {
@@ -41,9 +42,25 @@ namespace Inventory_Sorter
                         else if ((int)x.PawnItemType > (int)y.PawnItemType) { return 1; }
                         else { return -1; }
                     }
-                    else
+                    else if (Global.sortmode == 1)
                     {
                         return x.GetItemName().CompareTo(y.GetItemName());
+                    }
+                    else
+                    {
+                        if (x.PawnItemType == y.PawnItemType)
+                        {
+                            if (x.SubType == y.SubType)
+                            {
+                                if (x.Level == y.Level) { return 0; }
+                                else if (x.Level > y.Level) { return 1; }
+                                else { return -1; }
+                            }
+                            else if (x.SubType > y.SubType) { return 1; }
+                            else { return -1; }
+                        }
+                        else if (Global.ModifiedTypeOrder.IndexOf(x.PawnItemType) > Global.ModifiedTypeOrder.IndexOf(y.PawnItemType)) { return 1; }
+                        else { return -1; }
                     }
                 }
             }

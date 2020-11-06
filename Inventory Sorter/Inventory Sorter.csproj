@@ -37,18 +37,22 @@
     <Reference Include="0Harmony, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ACTk.Runtime, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\ACTk.Runtime.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="PulsarPluginLoader, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\PulsarPluginLoader.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,6 +63,7 @@
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -70,32 +75,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>SET PLUGIN_DIR="D:\Program Files (x86)\Steam\steamapps\common\PULSARLostColony\PULSAR_LostColony_Data\Managed\Plugins\"
+
+IF EXIST %25PLUGIN_DIR%25 (
+    ECHO Copying DLLs to Plugins directory...
+    XCOPY /Y /F "$(TargetPath)" %25PLUGIN_DIR%25
+)</PostBuildEvent>
   </PropertyGroup>
   <Target Name="CopyMarkdownFiles" AfterTargets="AfterBuild">
     <CreateItem Include="$(SolutionDir)\*.md">
       <Output TaskParameter="Include" ItemName="MarkdownFiles" />
     </CreateItem>
     <Copy SourceFiles="@(MarkdownFiles)" DestinationFiles="@(MarkdownFiles->'$(OutDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
-  </Target>
-  <!-- Copy select files from output dir to Plugins dir -->
-  <Target Name="DeployPlugin" AfterTargets="CopyMarkdownFiles" Condition="'$(PULSAR_PATH)' != ''">
-    <Error Condition="!Exists('$(PULSAR_PATH)')" Text="PULSAR_PATH set but directory doesn't exist!  Ensure the path is right: PULSAR_PATH='$(PULSAR_PATH)'" />
-    <CombinePath BasePath="$(PULSAR_PATH)" Paths="PULSAR_LostColony_Data\Managed">
-      <Output TaskParameter="CombinedPaths" PropertyName="ManagedDir" />
-    </CombinePath>
-    <CombinePath BasePath="$(PULSAR_PATH)" Paths="PULSAR_LostColony_Data\Managed\Plugins">
-      <Output TaskParameter="CombinedPaths" PropertyName="PluginsDir" />
-    </CombinePath>
-    <CreateItem Include="$(TargetDir)\*.md">
-      <Output TaskParameter="Include" ItemName="MarkdownFiles" />
-    </CreateItem>
-    <CreateItem Include="$(TargetDir)\*.dll*">
-      <Output TaskParameter="Include" ItemName="Assemblies" />
-    </CreateItem>
-    <Message Importance="High" Text="Copying build output to Plugins directory: $(PluginsDir)" />
-    <Copy SourceFiles="@(MarkdownFiles)" DestinationFiles="@(MarkdownFiles->'$(PluginsDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(Assemblies)" DestinationFiles="@(Assemblies->'$(PluginsDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>
