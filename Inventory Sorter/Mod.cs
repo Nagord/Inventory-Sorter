@@ -1,8 +1,8 @@
-﻿using PulsarPluginLoader;
+﻿using PulsarModLoader;
 
 namespace Inventory_Sorter
 {
-    public class Plugin : PulsarPlugin
+    public class Mod : PulsarMod
     {
         public override string Version => "1.0.0";
 

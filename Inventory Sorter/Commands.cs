@@ -1,21 +1,21 @@
-﻿using PulsarPluginLoader.Chat.Commands;
-using PulsarPluginLoader.Utilities;
+﻿using PulsarModLoader.Chat.Commands.CommandRouter;
+using PulsarModLoader.Utilities;
 
 namespace Inventory_Sorter
 {
-    class Commands : IChatCommand
+    class Commands : ChatCommand
     {
-        public string[] CommandAliases()
+        public override string[] CommandAliases()
         {
             return new string[] { "sortby" };
         }
 
-        public string Description()
+        public override string Description()
         {
             return "Changes sortmode for inventories. sortmodes: type, name, default.";
         }
 
-        public bool Execute(string arguments, int SenderID)
+        public override void Execute(string arguments)
         {
             switch (arguments.ToLower())
             {
@@ -38,18 +38,11 @@ namespace Inventory_Sorter
                     Messaging.Notification("Syntax: /sortby [sortmode]. sortmodes: type, name, default.");
                     break;
             }
-            
-            return false;
         }
 
-        public bool PublicCommand()
+        public override string[][] Arguments()
         {
-            return false;
-        }
-
-        public string UsageExample()
-        {
-            return "/sortby [sortmode]";
+            return new string[][] { new string[] { "name", "n", "type", "t", "default", "d" } };
         }
     }
 }
