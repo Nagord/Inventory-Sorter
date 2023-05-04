@@ -34,6 +34,13 @@ namespace Inventory_Sorter
                     Global.sortmode = 2;
                     Messaging.Notification("Now sorting by default sort mode.");
                     break;
+                case "fix":
+                    foreach (PLPawnInventoryBase inventory in PLNetworkManager.Instance.AllPawnInventories)
+                    {
+                        Global.Fix0SubtypeList(inventory.AllItems);
+                    }
+                    Messaging.Notification("Fixing known type-subtype pairs");
+                    break;
                 default:
                     Messaging.Notification("Syntax: /sortby [sortmode]. sortmodes: type, name, default.");
                     break;
