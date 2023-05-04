@@ -44,6 +44,8 @@ namespace Inventory_Sorter
                     {
                         Global.Fix0SubtypeList(inventory.AllItems);
                     }
+                    PLTabMenu.Instance.DisplayedPIDS_MyInventory.Clear();
+                    PLTabMenu.Instance.DisplayedPIDS_Container.Clear();
                     Messaging.Notification("Fixing known type-subtype pairs");
                     break;
                 default:
