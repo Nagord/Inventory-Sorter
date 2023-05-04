@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using PulsarModLoader.Utilities;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using static PulsarModLoader.Patches.HarmonyHelpers;
@@ -56,7 +55,7 @@ namespace Inventory_Sorter
 
 
                     //Sortby Refined
-                    else
+                    else if (Global.sortmode == 2)
                     {
                         if (x.PawnItemType == y.PawnItemType)
                         {
@@ -70,6 +69,23 @@ namespace Inventory_Sorter
                             else return -1;
                         }
                         else if (Global.ModifiedTypeOrder.IndexOf(x.PawnItemType) > Global.ModifiedTypeOrder.IndexOf(y.PawnItemType)) return 1;
+                        else return -1;
+                    }
+
+                    else
+                    {
+                        if (x.PawnItemType == y.PawnItemType)
+                        {
+                            if (x.SubType == y.SubType)
+                            {
+                                if (x.Level == y.Level) return 0;
+                                else if (x.Level > y.Level) return 1;
+                                else return -1;
+                            }
+                            else if (x.SubType > y.SubType) return 1;
+                            else return -1;
+                        }
+                        else if (Global.CustomSorting.Value.IndexOf((int)x.PawnItemType) > Global.CustomSorting.Value.IndexOf((int)y.PawnItemType)) return 1;
                         else return -1;
                     }
                 }

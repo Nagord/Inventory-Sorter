@@ -12,7 +12,7 @@ namespace Inventory_Sorter
 
         public override string Description()
         {
-            return "Changes sortmode for inventories. sortmodes: type, name, default.";
+            return "Changes sortmode for inventories. sortmodes: type, name, default, custom.";
         }
 
         public override void Execute(string arguments)
@@ -21,18 +21,23 @@ namespace Inventory_Sorter
             {
                 case "name":
                 case "n":
-                    Global.sortmode = 1;
+                    Global.sortmode.Value = 1;
                     Messaging.Notification("Now sorting by name.");
                     break;
                 case "type":
                 case "t":
-                    Global.sortmode = 0;
+                    Global.sortmode.Value = 0;
                     Messaging.Notification("Now sorting by type.");
                     break;
                 case "default":
                 case "d":
-                    Global.sortmode = 2;
+                    Global.sortmode.Value = 2;
                     Messaging.Notification("Now sorting by default sort mode.");
+                    break;
+                case "custom":
+                case "c":
+                    Global.sortmode.Value = 3;
+                    Messaging.Notification("Now sorting by custom sort mode.");
                     break;
                 case "fix":
                     foreach (PLPawnInventoryBase inventory in PLNetworkManager.Instance.AllPawnInventories)
@@ -49,7 +54,7 @@ namespace Inventory_Sorter
 
         public override string[][] Arguments()
         {
-            return new string[][] { new string[] { "name", "n", "type", "t", "default", "d" } };
+            return new string[][] { new string[] { "name", "type", "default", "custom", "fix" } };
         }
     }
 }
