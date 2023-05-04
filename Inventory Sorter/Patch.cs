@@ -1,4 +1,7 @@
 ﻿using HarmonyLib;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using static PulsarModLoader.Patches.HarmonyHelpers;
 
 namespace Inventory_Sorter
 {
@@ -112,6 +115,47 @@ namespace Inventory_Sorter
             PLNetworkManager.Instance.GetInvAtID(targetInvID).AllItems.Sort(PawnItemSorter.Compare);
             PLTabMenu.Instance.DisplayedPIDS_MyInventory.Sort(PawnItemDisplaySorter.Compare);
             PLTabMenu.Instance.DisplayedPIDS_Container.Sort(PawnItemDisplaySorter.Compare);
+        }
+    }
+    [HarmonyPatch(typeof(PLTabMenu), "UpdatePIDs")]
+    class TabMenuUpdatePIDsPatch
+    {
+        static void PatchMethod(List<PLTabMenu.PawnItemDisplay> list)
+        {
+            list.Sort(PawnItemDisplaySorter.Compare);
+        }
+
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            //Every time something is added to the PID list
+            List<CodeInstruction> targetSequence = new List<CodeInstruction>()
+            {
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PLTabMenu), "allPIDs")),
+                new CodeInstruction(OpCodes.Ldloc_S),
+                new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(List<PLTabMenu.PawnItemDisplay>), "Add")),
+            };
+
+            List<CodeInstruction> InjectedSequence = new List<CodeInstruction>()
+            {
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PLTabMenu), "allPIDs")),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(TabMenuUpdatePIDsPatch), "PatchMethod")),
+            };
+
+            return PatchBySequence(instructions, targetSequence, InjectedSequence, PatchMode.AFTER, CheckMode.NONNULL);
+
+
+            //Every time something is removed from the PID list
+            /*targetSequence = new List<CodeInstruction>()
+            {
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(PLTabMenu), "allPIDs")),
+                new CodeInstruction(OpCodes.Ldloc_S),
+                new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(List<PLTabMenu.PawnItemDisplay>), "Remove")),
+            };
+
+            return PatchBySequence(instructions, targetSequence, InjectedSequence, PatchMode.AFTER, CheckMode.NONNULL);*/
         }
     }
 }
